@@ -87,14 +87,13 @@ packages in both the global and user databases."
   (with-temp-buffer
     (call-process "ghc-pkg" nil (current-buffer) nil "dump")
     (goto-char (point-min))
-    (sort (loop while (re-search-forward
-                       (concat "exposed: True\n"
-                               "exposed-modules:"
-                               "\\(\\(?:.*\n?\\)*?\\)"
-                               "hidden-modules")
-                       nil t)
-                nconc (split-string (match-string 1) "[\s\n]+" t))
-          'string<)))
+    (loop while (re-search-forward
+                 (concat "exposed: True\n"
+                         "exposed-modules:"
+                         "\\(\\(?:.*\n?\\)*?\\)"
+                         "hidden-modules")
+                 nil t)
+          nconc (split-string (match-string 1) "[\s\n]+" t))))
 
 (defun update-exposed-modules ()
   (setq exposed-modules (exposed-modules)))
