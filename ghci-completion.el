@@ -130,7 +130,7 @@ packages in both the global and user databases."
      (concat "-X" extension))
    (split-string
     (shell-command-to-string "ghc --supported-extensions")
-    "\n")))
+    "\n" t)))
 
 (defconst ghci-completion-warning-options
   '("-w" "-W" "-Wall" "-Wwarn" "-Werror"
