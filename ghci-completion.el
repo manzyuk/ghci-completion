@@ -10,7 +10,7 @@
       (match-string-no-properties 1))))
 
 (defun prefix-p (string1 string2)
-  "Is STING1 a prefix of STRING2?"
+  "Is STRING1 a prefix of STRING2?"
   (and (<= (length string1)
            (length string2))
        (string-equal string1
@@ -122,6 +122,140 @@ packages in both the global and user databases."
 
 (defun pcomplete/:module ()
   (while (pcomplete-here* exposed-modules)))
+
+(defun language-options ()
+  (mapcar (lambda (extension)
+            (concat "-X" extension))
+          (split-string
+           (shell-command-to-string "ghc --supported-extensions")
+           "\n")))
+
+(defvar language-options nil)
+
+(defun update-language-options ()
+  (setq language-options (language-options)))
+
+(defvar warning-options
+  '("-w" "-W" "-Wall" "-Wwarn" "-Werror"
+    "-fwarn-unrecognised-pragmas"
+    "-fno-warn-unrecognised-pragmas"
+    "-fwarn-warnings-deprecations"
+    "-fno-warn-warnings-deprecations"
+    "-fwarn-deprecated-flags"
+    "-fno-warn-deprecated-flags"
+    "-fwarn-duplicate-exports"
+    "-fno-warn-duplicate-exports"
+    "-fwarn-hi-shadowing"
+    "-fno-warn-hi-shadowing"
+    "-fwarn-implicit-prelude"
+    "-fno-warn-implicit-prelude"
+    "-fwarn-incomplete-patterns"
+    "-fno-warn-incomplete-patterns"
+    "-fwarn-incomplete-record-updates"
+    "-fno-warn-incomplete-record-updates"
+    "-fwarn-lazy-unlifted-bindings"
+    "-fno-warn-lazy-unlifted-bindings"
+    "-fwarn-missing-fields"
+    "-fno-warn-missing-fields"
+    "-fwarn-missing-import-lists"
+    "-fnowarn-missing-import-lists"
+    "-fwarn-missing-methods"
+    "-fno-warn-missing-methods"
+    "-fwarn-missing-signatures"
+    "-fno-warn-missing-signatures"
+    "-fwarn-name-shadowing"
+    "-fno-warn-name-shadowing"
+    "-fwarn-orphans"
+    "-fno-warn-orphans"
+    "-fwarn-overlapping-patterns"
+    "-fno-warn-overlapping-patterns"
+    "-fwarn-tabs"
+    "-fno-warn-tabs"
+    "-fwarn-type-defaults"
+    "-fno-warn-type-defaults"
+    "-fwarn-monomorphism-restriction"
+    "-fno-warn-monomorphism-restriction"
+    "-fwarn-unused-binds"
+    "-fno-warn-unused-binds"
+    "-fwarn-unused-imports"
+    "-fno-warn-unused-imports"
+    "-fwarn-unused-matches"
+    "-fno-warn-unused-matches"
+    "-fwarn-unused-do-bind"
+    "-fno-warn-unused-do-bind"
+    "-fwarn-wrong-do-bind"
+    "-fno-warn-wrong-do-bind"))
+
+(defvar debugging-options
+  '("-dcore-lint"
+    "-ddump-asm"
+    "-ddump-bcos"
+    "-ddump-cmm"
+    "-ddump-cpranal"
+    "-ddump-cse"
+    "-ddump-deriv"
+    "-ddump-ds"
+    "-ddump-flatC"
+    "-ddump-foreign"
+    "-ddump-hpc"
+    "-ddump-inlinings"
+    "-ddump-llvm"
+    "-ddump-occur-anal"
+    "-ddump-opt-cmm"
+    "-ddump-parsed"
+    "-ddump-prep"
+    "-ddump-rn"
+    "-ddump-rules"
+    "-ddump-simpl"
+    "-ddump-simpl-phases"
+    "-ddump-simpl-iterations"
+    "-ddump-spec"
+    "-ddump-splices"
+    "-ddump-stg"
+    "-ddump-stranal"
+    "-ddump-tc"
+    "-ddump-types"
+    "-ddump-worker-wrapper"
+    "-ddump-if-trace"
+    "-ddump-tc-trace"
+    "-ddump-rn-trace"
+    "-ddump-rn-stats"
+    "-ddump-simpl-stats"
+    "-dno-debug-output"
+    "-dppr-debug"
+    "-dsuppress-uniques"
+    "-dsuppress-coercions"
+    "-dsuppress-module-prefixes"
+    "-dppr-noprags"
+    "-dppr-user-length"
+    "-dsource-stats"
+    "-dcmm-lint"
+    "-dstg-lint"
+    "-dstg-stats"
+    "-dverbose-core2core"
+    "-dverbose-stg2stg"
+    "-dshow-passes"
+    "-dfaststring-stats"))
+
+(defun ghci-set/unset-options ()
+  (append language-options
+          warning-options
+          debugging-options
+          '("+r" "+s" "+t")))
+
+(defun pcomplete/:set ()
+  (while (pcomplete-here*
+          (append (ghci-set/unset-options)
+                  '("args"
+                    "prog"
+                    "prompt"
+                    "editor"
+                    "stop")))))
+
+(fset 'pcomplete/:s 'pcomplete/:set)
+
+(defun pcomplete/:unset ()
+  (while (pcomplete-here* (ghci-set/unset-options))))
 
 (defvar ghci-show-commands
   '("bindings"
