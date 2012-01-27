@@ -120,6 +120,8 @@ packages in both the global and user databases."
 (defun pcomplete/:module ()
   (while (pcomplete-here* ghci-completion-exposed-modules)))
 
+(fset 'pcomplete/:m 'pcomplete/:module)
+
 (defvar ghci-completion-language-options nil
   "The list of supported language extensions.")
 
@@ -270,8 +272,6 @@ packages in both the global and user databases."
 
 (defun pcomplete/:show ()
   (pcomplete-here* ghci-completion-show-commands))
-
-(fset 'pcomplete/:m 'pcomplete/:module)
 
 ;;; ghci-completion-mode
 
