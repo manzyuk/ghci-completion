@@ -275,6 +275,8 @@ packages in both the global and user databases."
 
 (fset 'pcomplete/:m 'pcomplete/:module)
 
+;;; ghci-completion-mode
+
 (defvar ghci-completion-mode nil
   "Non-nil if GHCi completion mode is in effect.")
 (make-variable-buffer-local 'ghci-completion-mode)
