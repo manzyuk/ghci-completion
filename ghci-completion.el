@@ -2,44 +2,9 @@
 
 (require 'pcomplete)
 
-(defun ghci-match-partial-command ()
-  "Return the command name at point, or nil if none is found."
-  (save-excursion
-    (comint-bol nil)
-    (when (looking-at " *\\(:[a-z]+\\)$")
-      (match-string-no-properties 1))))
-
-(defun prefix-p (string1 string2)
-  "Is STRING1 a prefix of STRING2?"
-  (and (<= (length string1)
-           (length string2))
-       (string-equal string1
-                     (substring string2 0 (length string1)))))
-
-(defun ghci-command-completion ()
-  "Return the completion data for the command at point, if any."
-  (let ((command (ghci-match-partial-command)))
-    (when command
-      (let ((beg (match-beginning 1))
-            (end (match-end 1))
-            (completions
-             (remove-if-not
-              (lambda (candidate)
-                (prefix-p command candidate))
-              ghci-commands)))
-        (list
-         beg end
-         (lambda (string pred action)
-           (complete-with-action action completions string pred))
-         :exit-function
-         (lambda (_string finished)
-           (when (memq finished '(sole finished))
-             (if (looking-at " ")
-                 (goto-char (match-end 0))
-               (insert " ")))))))))
-
-(defconst ghci-commands
-  '(":add"
+(defconst ghci-completion-commands
+  '(":?"
+    ":add"
     ":browse" ":browse!"
     ":cd"
     ":cmd"
@@ -78,10 +43,46 @@
     ":show")
   "Commands available from the GHCi prompt.")
 
-(defvar exposed-modules nil
+(defun ghci-completion-match-partial-command ()
+  "Return the command name at point, or nil if none is found."
+  (save-excursion
+    (comint-bol nil)
+    (when (looking-at " *\\(:[a-z]*\\)$")
+      (match-string-no-properties 1))))
+
+(defun ghci-completion-prefix-p (string1 string2)
+  "Is STRING1 a prefix of STRING2?"
+  (and (<= (length string1)
+           (length string2))
+       (string-equal string1
+                     (substring string2 0 (length string1)))))
+
+(defun ghci-completion-command-completion ()
+  "Return the completion data for the command at point, if any."
+  (let ((command (ghci-completion-match-partial-command)))
+    (when command
+      (let ((beg (match-beginning 1))
+            (end (match-end 1))
+            (completions
+             (remove-if-not
+              (lambda (candidate)
+                (ghci-completion-prefix-p command candidate))
+              ghci-completion-commands)))
+        (list
+         beg end
+         (lambda (string pred action)
+           (complete-with-action action completions string pred))
+         :exit-function
+         (lambda (_string finished)
+           (when (memq finished '(sole finished))
+             (if (looking-at " ")
+                 (goto-char (match-end 0))
+               (insert " ")))))))))
+
+(defvar ghci-completion-exposed-modules nil
   "The list of exposed modules.")
 
-(defun exposed-modules ()
+(defun ghci-completion-parse-exposed-modules ()
   "Return the list of exposed modules from the registered
 packages in both the global and user databases."
   (with-temp-buffer
@@ -95,14 +96,11 @@ packages in both the global and user databases."
                  nil t)
           nconc (split-string (match-string 1) "[\s\n]+" t))))
 
-(defun update-exposed-modules ()
-  (setq exposed-modules (exposed-modules)))
-
 (defun pcomplete/:add ()
   (while (pcomplete-here* (pcomplete-entries))))
 
 (defun pcomplete/:browse ()
-  (pcomplete-here* exposed-modules))
+  (pcomplete-here* ghci-completion-exposed-modules))
 
 (fset 'pcomplete/:browse! 'pcomplete/:browse)
 
@@ -120,21 +118,21 @@ packages in both the global and user databases."
 (fset 'pcomplete/:l 'pcomplete/:load)
 
 (defun pcomplete/:module ()
-  (while (pcomplete-here* exposed-modules)))
+  (while (pcomplete-here* ghci-completion-exposed-modules)))
 
-(defun language-options ()
-  (mapcar (lambda (extension)
-            (concat "-X" extension))
-          (split-string
-           (shell-command-to-string "ghc --supported-extensions")
-           "\n")))
+(defvar ghci-completion-language-options nil
+  "The list of supported language extensions.")
 
-(defvar language-options nil)
+(defun ghci-completion-parse-language-options ()
+  "Return the list of language extensions supported by GHC."
+  (mapcar
+   (lambda (extension)
+     (concat "-X" extension))
+   (split-string
+    (shell-command-to-string "ghc --supported-extensions")
+    "\n")))
 
-(defun update-language-options ()
-  (setq language-options (language-options)))
-
-(defconst warning-options
+(defconst ghci-completion-warning-options
   '("-w" "-W" "-Wall" "-Wwarn" "-Werror"
     "-fwarn-unrecognised-pragmas"
     "-fno-warn-unrecognised-pragmas"
@@ -185,7 +183,7 @@ packages in both the global and user databases."
     "-fwarn-wrong-do-bind"
     "-fno-warn-wrong-do-bind"))
 
-(defconst debugging-options
+(defconst ghci-completion-debugging-options
   '("-dcore-lint"
     "-ddump-asm"
     "-ddump-bcos"
@@ -236,15 +234,15 @@ packages in both the global and user databases."
     "-dshow-passes"
     "-dfaststring-stats"))
 
-(defun ghci-set/unset-options ()
-  (append language-options
-          warning-options
-          debugging-options
+(defun ghci-completion-set/unset-options ()
+  (append ghci-completion-language-options
+          ghci-completion-warning-options
+          ghci-completion-debugging-options
           '("+r" "+s" "+t")))
 
 (defun pcomplete/:set ()
   (while (pcomplete-here*
-          (append (ghci-set/unset-options)
+          (append (ghci-completion-set/unset-options)
                   '("args"
                     "prog"
                     "prompt"
@@ -254,9 +252,9 @@ packages in both the global and user databases."
 (fset 'pcomplete/:s 'pcomplete/:set)
 
 (defun pcomplete/:unset ()
-  (while (pcomplete-here* (ghci-set/unset-options))))
+  (while (pcomplete-here* (ghci-completion-set/unset-options))))
 
-(defconst ghci-show-commands
+(defconst ghci-completion-show-commands
   '("bindings"
     "breaks"
     "contexts"
@@ -271,7 +269,7 @@ packages in both the global and user databases."
   "GHCi commands for displaying information.")
 
 (defun pcomplete/:show ()
-  (pcomplete-here* ghci-show-commands))
+  (pcomplete-here* ghci-completion-show-commands))
 
 (fset 'pcomplete/:m 'pcomplete/:module)
 
@@ -293,8 +291,11 @@ packages in both the global and user databases."
   (add-hook 'comint-dynamic-complete-functions
             'pcomplete-completions-at-point nil 'local)
   (add-hook 'comint-dynamic-complete-functions
-            'ghci-command-completion nil 'local)
-  (update-exposed-modules)
+            'ghci-completion-command-completion nil 'local)
+  (setq ghci-completion-exposed-modules
+        (ghci-completion-parse-exposed-modules))
+  (setq ghci-completion-language-options
+        (ghci-completion-parse-language-options))
   (let ((map (current-local-map)))
     (while (and map (not (eq map ghci-completion-map)))
       (setq map (keymap-parent map)))
@@ -308,7 +309,7 @@ packages in both the global and user databases."
   (remove-hook 'comint-dynamic-complete-functions
                'pcomplete-completions-at-point 'local)
   (remove-hook 'comint-dynamic-complete-functions
-               'ghci-command-completion 'local)
+               'ghci-completion-command-completion 'local)
   (let ((map (current-local-map)))
     (while map
       (let ((parent (keymap-parent map)))
