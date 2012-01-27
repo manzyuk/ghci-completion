@@ -115,6 +115,8 @@
 (defun pcomplete/:module ()
   (while (pcomplete-here* exposed-modules)))
 
+(fset 'pcomplete/:m 'pcomplete/:module)
+
 (defvar ghci-completion-mode nil
   "Non-nil if GHCi completion mode is in effect.")
 (make-variable-buffer-local 'ghci-completion-mode)
