@@ -115,6 +115,11 @@ packages in both the global and user databases."
 
 (fset 'pcomplete/:e 'pcomplete/:edit)
 
+(defun pcomplete/:load ()
+  (while (pcomplete-here* (pcomplete-entries))))
+
+(fset 'pcomplete/:l 'pcomplete/:load)
+
 (defun pcomplete/:module ()
   (while (pcomplete-here* exposed-modules)))
 
