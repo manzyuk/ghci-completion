@@ -89,6 +89,23 @@
     ":show")
   "Commands available from the GHCi prompt.")
 
+(defvar ghci-show-commands
+  '("bindings"
+    "breaks"
+    "contexts"
+    "modules"
+    "packages"
+    "languages"
+    "args"
+    "prog"
+    "prompt"
+    "editor"
+    "stop")
+  "GHCi commands for displaying information.")
+
+(defun pcomplete/:show ()
+  (pcomplete-here* ghci-show-commands))
+
 (defvar ghci-completion-mode nil
   "Non-nil if GHCi completion mode is in effect.")
 (make-variable-buffer-local 'ghci-completion-mode)
