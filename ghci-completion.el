@@ -78,26 +78,6 @@
     ":show")
   "Commands available from the GHCi prompt.")
 
-(defun pcomplete/:add ()
-  (while (pcomplete-here* (pcomplete-entries))))
-
-(defvar ghci-show-commands
-  '("bindings"
-    "breaks"
-    "contexts"
-    "modules"
-    "packages"
-    "languages"
-    "args"
-    "prog"
-    "prompt"
-    "editor"
-    "stop")
-  "GHCi commands for displaying information.")
-
-(defun pcomplete/:show ()
-  (pcomplete-here* ghci-show-commands))
-
 (defvar exposed-modules nil
   "The list of exposed modules.")
 
@@ -119,8 +99,33 @@ packages in both the global and user databases."
 (defun update-exposed-modules ()
   (setq exposed-modules (exposed-modules)))
 
+(defun pcomplete/:add ()
+  (while (pcomplete-here* (pcomplete-entries))))
+
+(defun pcomplete/:browse ()
+  (pcomplete-here* exposed-modules))
+
+(fset 'pcomplete/:browse! 'pcomplete/:browse)
+
 (defun pcomplete/:module ()
   (while (pcomplete-here* exposed-modules)))
+
+(defvar ghci-show-commands
+  '("bindings"
+    "breaks"
+    "contexts"
+    "modules"
+    "packages"
+    "languages"
+    "args"
+    "prog"
+    "prompt"
+    "editor"
+    "stop")
+  "GHCi commands for displaying information.")
+
+(defun pcomplete/:show ()
+  (pcomplete-here* ghci-show-commands))
 
 (fset 'pcomplete/:m 'pcomplete/:module)
 
