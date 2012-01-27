@@ -78,6 +78,9 @@
     ":show")
   "Commands available from the GHCi prompt.")
 
+(defun pcomplete/:add ()
+  (while (pcomplete-here* (pcomplete-entries))))
+
 (defvar ghci-show-commands
   '("bindings"
     "breaks"
