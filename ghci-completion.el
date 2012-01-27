@@ -2,22 +2,9 @@
 
 (require 'pcomplete)
 
-(defun exposed-modules ()
-  (with-temp-buffer
-    (call-process "ghc-pkg" nil (current-buffer) nil "dump")
-    (goto-char (point-min))
-    (sort (loop while (re-search-forward
-                       (concat "exposed: True\n"
-                               "exposed-modules:"
-                               "\\(\\(?:.*\n?\\)*?\\)"
-                               "hidden-modules")
-                       nil t)
-                nconc (split-string (match-string 1) "[\s\n]+" t))
-          'string<)))
-
 (defun ghci-match-partial-command ()
   (save-excursion
-    (comint-bol)
+    (comint-bol nil)
     (when (looking-at " *\\(:[a-z]+\\)$")
       (match-string-no-properties 1))))
 
@@ -106,6 +93,28 @@
 (defun pcomplete/:show ()
   (pcomplete-here* ghci-show-commands))
 
+(defvar exposed-modules nil
+  "The list of exposed modules.")
+
+(defun exposed-modules ()
+  (with-temp-buffer
+    (call-process "ghc-pkg" nil (current-buffer) nil "dump")
+    (goto-char (point-min))
+    (sort (loop while (re-search-forward
+                       (concat "exposed: True\n"
+                               "exposed-modules:"
+                               "\\(\\(?:.*\n?\\)*?\\)"
+                               "hidden-modules")
+                       nil t)
+                nconc (split-string (match-string 1) "[\s\n]+" t))
+          'string<)))
+
+(defun update-exposed-modules ()
+  (setq exposed-modules (exposed-modules)))
+
+(defun pcomplete/:module ()
+  (while (pcomplete-here* exposed-modules)))
+
 (defvar ghci-completion-mode nil
   "Non-nil if GHCi completion mode is in effect.")
 (make-variable-buffer-local 'ghci-completion-mode)
@@ -123,6 +132,7 @@
             'pcomplete-completions-at-point nil 'local)
   (add-hook 'comint-dynamic-complete-functions
             'ghci-command-completion nil 'local)
+  (update-exposed-modules)
   (let ((map (current-local-map)))
     (while (and map (not (eq map ghci-completion-map)))
       (setq map (keymap-parent map)))
