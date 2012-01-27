@@ -107,6 +107,9 @@ packages in both the global and user databases."
 
 (fset 'pcomplete/:browse! 'pcomplete/:browse)
 
+(defun pcomplete/:cd ()
+  (pcomplete-here* (pcomplete-dirs)))
+
 (defun pcomplete/:module ()
   (while (pcomplete-here* exposed-modules)))
 
