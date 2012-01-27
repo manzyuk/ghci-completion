@@ -145,6 +145,11 @@
           (setq map parent)))))
   (setq ghci-completion-mode nil))
 
+(or (assq 'ghci-completion-mode (default-value 'minor-mode-alist))
+    (setq-default minor-mode-alist
+                  (append (default-value 'minor-mode-alist)
+                          '((ghci-completion-mode " GHCi-Completion")))))
+
 (defun ghci-completion-mode (&optional arg)
   (interactive "P")
   (setq ghci-completion-mode
