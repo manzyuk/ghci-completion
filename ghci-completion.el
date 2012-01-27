@@ -1,5 +1,7 @@
 ;; -*- lexical-binding: t -*-
 
+(require 'pcomplete)
+
 (defun exposed-modules ()
   (with-temp-buffer
     (call-process "ghc-pkg" nil (current-buffer) nil "dump")
@@ -98,6 +100,10 @@
 
 (defun turn-on-ghci-completion ()
   (setq ghci-completion-mode t)
+  (set (make-local-variable 'pcomplete-parse-arguments-function)
+       'pcomplete-parse-comint-arguments)
+  (add-hook 'comint-dynamic-complete-functions
+            'pcomplete-completions-at-point nil 'local)
   (add-hook 'comint-dynamic-complete-functions
             'ghci-command-completion nil 'local)
   (let ((map (current-local-map)))
@@ -110,6 +116,8 @@
       (use-local-map map))))
 
 (defun turn-off-ghci-completion ()
+  (remove-hook 'comint-dynamic-complete-functions
+               'pcomplete-completions-at-point 'local)
   (remove-hook 'comint-dynamic-complete-functions
                'ghci-command-completion 'local)
   (let ((map (current-local-map)))
