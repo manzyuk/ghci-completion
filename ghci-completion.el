@@ -3,6 +3,7 @@
 (require 'pcomplete)
 
 (defun ghci-match-partial-command ()
+  "Return the command name at point, or nil if none is found."
   (save-excursion
     (comint-bol nil)
     (when (looking-at " *\\(:[a-z]+\\)$")
@@ -16,6 +17,7 @@
                      (substring string2 0 (length string1)))))
 
 (defun ghci-command-completion ()
+  "Return the completion data for the command at point, if any."
   (let ((command (ghci-match-partial-command)))
     (when command
       (let ((beg (match-beginning 1))
@@ -97,6 +99,8 @@
   "The list of exposed modules.")
 
 (defun exposed-modules ()
+  "Return the list of exposed modules from the registered
+packages in both the global and user databases."
   (with-temp-buffer
     (call-process "ghc-pkg" nil (current-buffer) nil "dump")
     (goto-char (point-min))
