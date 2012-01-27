@@ -1,5 +1,6 @@
 ;; -*- lexical-binding: t -*-
 
+(require 'comint)
 (require 'pcomplete)
 
 (defconst ghci-completion-commands
