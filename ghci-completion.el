@@ -98,8 +98,8 @@
 
 (defun turn-on-ghci-completion ()
   (setq ghci-completion-mode t)
-  (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
-               'ghci-command-completion)
+  (add-hook 'comint-dynamic-complete-functions
+            'ghci-command-completion nil 'local)
   (let ((map (current-local-map)))
     (while (and map (not (eq map ghci-completion-map)))
       (setq map (keymap-parent map)))
@@ -110,8 +110,8 @@
       (use-local-map map))))
 
 (defun turn-off-ghci-completion ()
-  (setq comint-dynamic-complete-functions
-        (delq 'ghci-command-completion comint-dynamic-complete-functions))
+  (remove-hook 'comint-dynamic-complete-functions
+               'ghci-command-completion 'local)
   (let ((map (current-local-map)))
     (while map
       (let ((parent (keymap-parent map)))
