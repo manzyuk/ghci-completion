@@ -38,7 +38,7 @@
                  (goto-char (match-end 0))
                (insert " ")))))))))
 
-(defvar ghci-commands
+(defconst ghci-commands
   '(":add"
     ":browse" ":browse!"
     ":cd"
@@ -134,7 +134,7 @@ packages in both the global and user databases."
 (defun update-language-options ()
   (setq language-options (language-options)))
 
-(defvar warning-options
+(defconst warning-options
   '("-w" "-W" "-Wall" "-Wwarn" "-Werror"
     "-fwarn-unrecognised-pragmas"
     "-fno-warn-unrecognised-pragmas"
@@ -185,7 +185,7 @@ packages in both the global and user databases."
     "-fwarn-wrong-do-bind"
     "-fno-warn-wrong-do-bind"))
 
-(defvar debugging-options
+(defconst debugging-options
   '("-dcore-lint"
     "-ddump-asm"
     "-ddump-bcos"
@@ -256,7 +256,7 @@ packages in both the global and user databases."
 (defun pcomplete/:unset ()
   (while (pcomplete-here* (ghci-set/unset-options))))
 
-(defvar ghci-show-commands
+(defconst ghci-show-commands
   '("bindings"
     "breaks"
     "contexts"
