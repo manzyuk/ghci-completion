@@ -110,6 +110,11 @@ packages in both the global and user databases."
 (defun pcomplete/:cd ()
   (pcomplete-here* (pcomplete-dirs)))
 
+(defun pcomplete/:edit ()
+  (pcomplete-here* (pcomplete-entries)))
+
+(fset 'pcomplete/:e 'pcomplete/:edit)
+
 (defun pcomplete/:module ()
   (while (pcomplete-here* exposed-modules)))
 
