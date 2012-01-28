@@ -1,7 +1,9 @@
-;; -*- lexical-binding: t -*-
+;;; -*- lexical-binding: t -*-
 
 (require 'comint)
 (require 'pcomplete)
+
+;;; Command completion
 
 (defconst ghci-completion-commands
   '(":?"
@@ -42,7 +44,7 @@
     ":set"
     ":unset"
     ":show")
-  "Commands available from the GHCi prompt.")
+  "The list of commands available from the GHCi prompt.")
 
 (defun ghci-completion-match-partial-command ()
   "Return the command name at point, or nil if none is found."
@@ -80,6 +82,8 @@
                  (goto-char (match-end 0))
                (insert " ")))))))))
 
+;;; Command options
+
 (defvar ghci-completion-exposed-modules nil
   "The list of exposed modules.")
 
@@ -96,32 +100,6 @@ packages in both the global and user databases."
                          "hidden-modules")
                  nil t)
           nconc (split-string (match-string 1) "[\s\n]+" t))))
-
-(defun pcomplete/:add ()
-  (while (pcomplete-here* (pcomplete-entries))))
-
-(defun pcomplete/:browse ()
-  (pcomplete-here* ghci-completion-exposed-modules))
-
-(fset 'pcomplete/:browse! 'pcomplete/:browse)
-
-(defun pcomplete/:cd ()
-  (pcomplete-here* (pcomplete-dirs)))
-
-(defun pcomplete/:edit ()
-  (pcomplete-here* (pcomplete-entries)))
-
-(fset 'pcomplete/:e 'pcomplete/:edit)
-
-(defun pcomplete/:load ()
-  (while (pcomplete-here* (pcomplete-entries))))
-
-(fset 'pcomplete/:l 'pcomplete/:load)
-
-(defun pcomplete/:module ()
-  (while (pcomplete-here* ghci-completion-exposed-modules)))
-
-(fset 'pcomplete/:m 'pcomplete/:module)
 
 (defvar ghci-completion-language-options nil
   "The list of supported language extensions.")
@@ -184,7 +162,8 @@ packages in both the global and user databases."
     "-fwarn-unused-do-bind"
     "-fno-warn-unused-do-bind"
     "-fwarn-wrong-do-bind"
-    "-fno-warn-wrong-do-bind"))
+    "-fno-warn-wrong-do-bind")
+  "The list of warning options.")
 
 (defconst ghci-completion-debugging-options
   '("-dcore-lint"
@@ -235,13 +214,57 @@ packages in both the global and user databases."
     "-dverbose-core2core"
     "-dverbose-stg2stg"
     "-dshow-passes"
-    "-dfaststring-stats"))
+    "-dfaststring-stats")
+  "The list of debugging options.")
 
 (defun ghci-completion-set/unset-options ()
+  "Return the list of options suitable for :set/:unset commands."
   (append ghci-completion-language-options
           ghci-completion-warning-options
           ghci-completion-debugging-options
           '("+r" "+s" "+t")))
+
+(defconst ghci-completion-show-options
+  '("bindings"
+    "breaks"
+    "contexts"
+    "modules"
+    "packages"
+    "languages"
+    "args"
+    "prog"
+    "prompt"
+    "editor"
+    "stop")
+  "The list of options for :show command.")
+
+;;; Pcomplete rules
+
+(defun pcomplete/:add ()
+  (while (pcomplete-here* (pcomplete-entries))))
+
+(defun pcomplete/:browse ()
+  (pcomplete-here* ghci-completion-exposed-modules))
+
+(fset 'pcomplete/:browse! 'pcomplete/:browse)
+
+(defun pcomplete/:cd ()
+  (pcomplete-here* (pcomplete-dirs)))
+
+(defun pcomplete/:edit ()
+  (pcomplete-here* (pcomplete-entries)))
+
+(fset 'pcomplete/:e 'pcomplete/:edit)
+
+(defun pcomplete/:load ()
+  (while (pcomplete-here* (pcomplete-entries))))
+
+(fset 'pcomplete/:l 'pcomplete/:load)
+
+(defun pcomplete/:module ()
+  (while (pcomplete-here* ghci-completion-exposed-modules)))
+
+(fset 'pcomplete/:m 'pcomplete/:module)
 
 (defun pcomplete/:set ()
   (while (pcomplete-here*
@@ -257,22 +280,8 @@ packages in both the global and user databases."
 (defun pcomplete/:unset ()
   (while (pcomplete-here* (ghci-completion-set/unset-options))))
 
-(defconst ghci-completion-show-commands
-  '("bindings"
-    "breaks"
-    "contexts"
-    "modules"
-    "packages"
-    "languages"
-    "args"
-    "prog"
-    "prompt"
-    "editor"
-    "stop")
-  "GHCi commands for displaying information.")
-
 (defun pcomplete/:show ()
-  (pcomplete-here* ghci-completion-show-commands))
+  (pcomplete-here* ghci-completion-show-options))
 
 ;;; ghci-completion-mode
 
@@ -286,6 +295,7 @@ packages in both the global and user databases."
     map))
 
 (defun turn-on-ghci-completion ()
+  "Turn on GHCi completion mode."
   (setq ghci-completion-mode t)
   (set (make-local-variable 'pcomplete-parse-arguments-function)
        'pcomplete-parse-comint-arguments)
@@ -307,6 +317,7 @@ packages in both the global and user databases."
       (use-local-map map))))
 
 (defun turn-off-ghci-completion ()
+  "Turn off GHCi completion mode."
   (remove-hook 'comint-dynamic-complete-functions
                'pcomplete-completions-at-point 'local)
   (remove-hook 'comint-dynamic-complete-functions
@@ -325,6 +336,8 @@ packages in both the global and user databases."
                           '((ghci-completion-mode " GHCi-Completion")))))
 
 (defun ghci-completion-mode (&optional arg)
+  "GHCi completion mode.
+Provides basic TAB-completion of GHCi commands."
   (interactive "P")
   (setq ghci-completion-mode
         (if (null arg)
