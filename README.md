@@ -14,7 +14,7 @@ this to `.emacs`:
 
 Otherwise, call `turn-on-ghci-completion`.
 
-Limitations:
+## Limitations:
 
 * This package is developed for Emacs 24 and it probably only works
   with Emacs 24.  In particular, we rely on lexical bindings, which
