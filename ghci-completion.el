@@ -39,6 +39,11 @@
 ;;
 ;; Limitations:
 ;;
+;; * This package is developed for Emacs 24 and it probably only works
+;;   with Emacs 24.  In particular, we rely on lexical bindings, which
+;;   have been introduced in Emacs 24, and on `pcomplete', which is
+;;   effectively broken in 23.2.
+;;
 ;; * Only the following commands are supported: :add, :browse[!], :cd,
 ;;   :edit, :load, :module, :set, :unset, :show.  It would be nice to
 ;;   have shell completion for :!, for example.
