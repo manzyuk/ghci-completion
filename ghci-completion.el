@@ -1,4 +1,60 @@
+;;; ghci-completion.el --- Completion for GHCi commands in inferior-haskell buffers
 ;;; -*- lexical-binding: t -*-
+
+;; Copyright (C) 2012 Oleksandr Manzyuk <manzyuk@gmail.com>
+
+;; Author: Oleksandr Manzyuk <manzyuk@gmail.com>
+;; Keywords: convenience
+
+;; This file is NOT part of GNU Emacs.
+
+;; This is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+
+;; This file is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Purpose:
+;;
+;; To support completion for GHCi commands (like :load, :module, :set
+;; etc.) in inferior-haskell buffers.
+;;
+;; Installation:
+;;
+;; To turn on GHCi commands completion in inferior-haskell buffers,
+;; add this to .emacs:
+;;
+;;     (add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion)
+;;
+;; Otherwise, call `turn-on-ghci-completion'.
+;;
+;; Limitations:
+;;
+;; * Only the following commands are supported: :add, :browse[!], :cd,
+;;   :edit, :load, :module, :set, :unset, :show.  It would be nice to
+;;   have shell completion for :!, for example.
+;;
+;; * The starred versions of the commands :add, :browse[!], :load, and
+;;   :module are not supported, partly because I don't use them, and
+;;   partly because, for example, :module offers completion only on
+;;   the exposed modules in registered packages in both the global and
+;;   user databases, and for these :module *<mod> is meaningless.
+;;
+;; * :set and :unset support only a subset of all GHC flags: language
+;;   extensions, warnings, and debugging options.  Adding completion
+;;   for other flags is trivial.  It would be nice, however, to be
+;;   able to generate the list of all GHC flags programmatically.
+
+;;; Code:
 
 (require 'comint)
 (require 'pcomplete)
