@@ -6,7 +6,8 @@
 ;;; Command completion
 
 (defconst ghci-completion-commands
-  '(":?"
+  '(":!"
+    ":?"
     ":add"
     ":browse" ":browse!"
     ":cd"
@@ -56,31 +57,31 @@
 (defun ghci-completion-prefix-p (string1 string2)
   "Is STRING1 a prefix of STRING2?"
   (and (<= (length string1)
-           (length string2))
+	   (length string2))
        (string-equal string1
-                     (substring string2 0 (length string1)))))
+		     (substring string2 0 (length string1)))))
 
 (defun ghci-completion-command-completion ()
   "Return the completion data for the command at point, if any."
   (let ((command (ghci-completion-match-partial-command)))
     (when command
       (let ((beg (match-beginning 1))
-            (end (match-end 1))
-            (completions
-             (remove-if-not
-              (lambda (candidate)
-                (ghci-completion-prefix-p command candidate))
-              ghci-completion-commands)))
-        (list
-         beg end
-         (lambda (string pred action)
-           (complete-with-action action completions string pred))
-         :exit-function
-         (lambda (_string finished)
-           (when (memq finished '(sole finished))
-             (if (looking-at " ")
-                 (goto-char (match-end 0))
-               (insert " ")))))))))
+	    (end (match-end 1))
+	    (completions
+	     (remove-if-not
+	      (lambda (candidate)
+		(ghci-completion-prefix-p command candidate))
+	      ghci-completion-commands)))
+	(list
+	 beg end
+	 (lambda (string pred action)
+	   (complete-with-action action completions string pred))
+	 :exit-function
+	 (lambda (_string finished)
+	   (when (memq finished '(sole finished))
+	     (if (looking-at " ")
+		 (goto-char (match-end 0))
+	       (insert " ")))))))))
 
 ;;; Command options
 
@@ -94,12 +95,12 @@ packages in both the global and user databases."
     (call-process "ghc-pkg" nil (current-buffer) nil "dump")
     (goto-char (point-min))
     (loop while (re-search-forward
-                 (concat "exposed: True\n"
-                         "exposed-modules:"
-                         "\\(\\(?:.*\n?\\)*?\\)"
-                         "hidden-modules")
-                 nil t)
-          nconc (split-string (match-string 1) "[\s\n]+" t))))
+		 (concat "exposed: True\n"
+			 "exposed-modules:"
+			 "\\(\\(?:.*\n?\\)*?\\)"
+			 "hidden-modules")
+		 nil t)
+	  nconc (split-string (match-string 1) "[\s\n]+" t))))
 
 (defvar ghci-completion-language-options nil
   "The list of supported language extensions.")
@@ -220,9 +221,9 @@ packages in both the global and user databases."
 (defun ghci-completion-set/unset-options ()
   "Return the list of options suitable for :set/:unset commands."
   (append ghci-completion-language-options
-          ghci-completion-warning-options
-          ghci-completion-debugging-options
-          '("+r" "+s" "+t")))
+	  ghci-completion-warning-options
+	  ghci-completion-debugging-options
+	  '("+r" "+s" "+t")))
 
 (defconst ghci-completion-show-options
   '("bindings"
@@ -268,12 +269,12 @@ packages in both the global and user databases."
 
 (defun pcomplete/:set ()
   (while (pcomplete-here*
-          (append (ghci-completion-set/unset-options)
-                  '("args"
-                    "prog"
-                    "prompt"
-                    "editor"
-                    "stop")))))
+	  (append (ghci-completion-set/unset-options)
+		  '("args"
+		    "prog"
+		    "prompt"
+		    "editor"
+		    "stop")))))
 
 (fset 'pcomplete/:s 'pcomplete/:set)
 
@@ -300,13 +301,13 @@ packages in both the global and user databases."
   (set (make-local-variable 'pcomplete-parse-arguments-function)
        'pcomplete-parse-comint-arguments)
   (add-hook 'comint-dynamic-complete-functions
-            'pcomplete-completions-at-point nil 'local)
+	    'pcomplete-completions-at-point nil 'local)
   (add-hook 'comint-dynamic-complete-functions
-            'ghci-completion-command-completion nil 'local)
+	    'ghci-completion-command-completion nil 'local)
   (setq ghci-completion-exposed-modules
-        (ghci-completion-parse-exposed-modules))
+	(ghci-completion-parse-exposed-modules))
   (setq ghci-completion-language-options
-        (ghci-completion-parse-language-options))
+	(ghci-completion-parse-language-options))
   (let ((map (current-local-map)))
     (while (and map (not (eq map ghci-completion-map)))
       (setq map (keymap-parent map)))
@@ -319,30 +320,30 @@ packages in both the global and user databases."
 (defun turn-off-ghci-completion ()
   "Turn off GHCi completion mode."
   (remove-hook 'comint-dynamic-complete-functions
-               'pcomplete-completions-at-point 'local)
+	       'pcomplete-completions-at-point 'local)
   (remove-hook 'comint-dynamic-complete-functions
-               'ghci-completion-command-completion 'local)
+	       'ghci-completion-command-completion 'local)
   (let ((map (current-local-map)))
     (while map
       (let ((parent (keymap-parent map)))
-        (if (eq ghci-completion-map parent)
-            (set-keymap-parent map (keymap-parent parent))
-          (setq map parent)))))
+	(if (eq ghci-completion-map parent)
+	    (set-keymap-parent map (keymap-parent parent))
+	  (setq map parent)))))
   (setq ghci-completion-mode nil))
 
 (or (assq 'ghci-completion-mode (default-value 'minor-mode-alist))
     (setq-default minor-mode-alist
-                  (append (default-value 'minor-mode-alist)
-                          '((ghci-completion-mode " GHCi-Completion")))))
+		  (append (default-value 'minor-mode-alist)
+			  '((ghci-completion-mode " GHCi-Completion")))))
 
 (defun ghci-completion-mode (&optional arg)
   "GHCi completion mode.
 Provides basic TAB-completion of GHCi commands."
   (interactive "P")
   (setq ghci-completion-mode
-        (if (null arg)
-            (not ghci-completion-mode)
-          (> (prefix-numeric-value arg) 0)))
+	(if (null arg)
+	    (not ghci-completion-mode)
+	  (> (prefix-numeric-value arg) 0)))
   (if ghci-completion-mode
       (turn-on-ghci-completion)
     (turn-off-ghci-completion)))
