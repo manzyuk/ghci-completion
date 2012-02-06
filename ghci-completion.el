@@ -73,6 +73,9 @@ output without inserting it into the inferior-haskell buffer."
          (output "")
          (prompt-regexp
           (buffer-local-value 'comint-prompt-regexp buffer)))
+    ;; This `with-local-quit' is here, so that if for some reason
+    ;; `accept-process-output' blocks, the user can C-g out such
+    ;; a state.
     (with-local-quit
       (set-process-filter
        process
