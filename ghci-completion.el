@@ -289,7 +289,7 @@ packages in both the global and user databases."
 (defconst ghci-completion-show-options
   '("bindings"
     "breaks"
-    "contexts"
+    "context"
     "modules"
     "packages"
     "languages"
