@@ -1,5 +1,4 @@
 ;;; ghci-completion.el --- Completion for GHCi commands in inferior-haskell buffers
-;;; -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012 Oleksandr Manzyuk <manzyuk@gmail.com>
 
@@ -410,3 +409,7 @@ Provides basic TAB-completion of GHCi commands."
     (turn-off-ghci-completion)))
 
 (provide 'ghci-completion)
+
+;; Local Variables:
+;; lexical-binding: t
+;; End:
