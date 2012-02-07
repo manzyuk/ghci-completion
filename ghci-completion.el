@@ -1,5 +1,4 @@
-;;; -*- lexical-binding: t; -*-
-;;; ghci-completion.el --- Completion for GHCi commands in inferior-haskell buffers
+;;; ghci-completion.el --- Completion for GHCi commands in inferior-haskell buffers -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2012 Oleksandr Manzyuk <manzyuk@gmail.com>
 
