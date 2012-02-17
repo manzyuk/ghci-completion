@@ -62,30 +62,6 @@
 
 (require 'comint)
 (require 'pcomplete)
-(require 'inf-haskell)
-
-(defun ghci-completion-execute-command-silently (command)
-  "Execute COMMAND in the inferior-haskell process and return its
-output without inserting it into the inferior-haskell buffer."
-  (let* ((process (inferior-haskell-process))
-         (buffer (process-buffer process))
-         (filter (process-filter process))
-         (output "")
-         (prompt-regexp
-          (buffer-local-value 'comint-prompt-regexp buffer)))
-    ;; This `with-local-quit' is here, so that if for some reason
-    ;; `accept-process-output' blocks, the user can C-g out of
-    ;; such a state.
-    (with-local-quit
-      (set-process-filter
-       process
-       (lambda (proc string)
-         (setq output (concat output string))))
-      (process-send-string process (format "%s\n" command))
-      (while (not (string-match prompt-regexp output))
-        (accept-process-output process))
-      (set-process-filter process filter)
-      output)))
 
 ;;; Command completion
 
@@ -131,19 +107,6 @@ output without inserting it into the inferior-haskell buffer."
     ":show")
   "The list of commands available from the GHCi prompt.")
 
-(defun ghci-completion-macros ()
-  "Return the list of the currently-defined macros."
-  (mapcar
-   (lambda (macro)
-     (concat ":" macro))
-   ;; Strip off the first line ("the following macros are defined:" or
-   ;; "no macros defined") and the last line (the prompt).
-   (rest
-    (butlast
-     (split-string
-      (ghci-completion-execute-command-silently ":def")
-      "\n" t)))))
-
 (defun ghci-completion-match-partial-command ()
   "Return the command name at point, or nil if none is found."
   (save-excursion
@@ -168,8 +131,7 @@ output without inserting it into the inferior-haskell buffer."
              (remove-if-not
               (lambda (candidate)
                 (ghci-completion-prefix-p command candidate))
-              (append ghci-completion-commands
-                      (ghci-completion-macros)))))
+              ghci-completion-commands)))
         (list
          beg end
          (lambda (string pred action)
