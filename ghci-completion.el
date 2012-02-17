@@ -360,6 +360,13 @@ packages in both the global and user databases."
   (setq ghci-completion-mode t)
   (set (make-local-variable 'pcomplete-parse-arguments-function)
        'pcomplete-parse-comint-arguments)
+  ;; The following two variables could be set to something more useful
+  ;; (identifier completion?).  Meanwhile, we set both to `ignore', so
+  ;; that we don't get directory completion by default.
+  (set (make-local-variable 'pcomplete-default-completion-function)
+       'ignore)
+  (set (make-local-variable 'pcomplete-command-completion-function)
+       'ignore)
   (add-hook 'comint-dynamic-complete-functions
             'pcomplete-completions-at-point nil 'local)
   (add-hook 'comint-dynamic-complete-functions
