@@ -416,3 +416,5 @@ Provides basic TAB-completion of GHCi commands."
     (turn-off-ghci-completion)))
 
 (provide 'ghci-completion)
+
+;;; ghci-completion.el ends here
