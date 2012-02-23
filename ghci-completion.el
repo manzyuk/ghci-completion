@@ -172,7 +172,7 @@ packages in both the global and user databases."
    (lambda (extension)
      (concat "-X" extension))
    (split-string
-    (shell-command-to-string "ghc --supported-extensions")
+    (shell-command-to-string "ghc --supported-languages")
     "\n" t)))
 
 (defconst ghci-completion-warning-options
