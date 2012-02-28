@@ -61,6 +61,7 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl))
 (require 'comint)
 (require 'pcomplete)
 
