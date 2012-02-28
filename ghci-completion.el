@@ -116,13 +116,6 @@
     (when (looking-at " *\\(:[a-z]*\\)$")
       (match-string-no-properties 1))))
 
-(defun ghci-completion-prefix-p (string1 string2)
-  "Is STRING1 a prefix of STRING2?"
-  (and (<= (length string1)
-           (length string2))
-       (string-equal string1
-                     (substring string2 0 (length string1)))))
-
 (defun ghci-completion-command-completion ()
   "Return the completion data for the command at point, if any."
   (let ((command (ghci-completion-match-partial-command)))
@@ -132,7 +125,7 @@
             (completions
              (remove-if-not
               (lambda (candidate)
-                (ghci-completion-prefix-p command candidate))
+                (string-prefix-p command candidate))
               ghci-completion-commands)))
         (list
          beg end
