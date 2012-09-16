@@ -37,6 +37,11 @@
 ;;
 ;; Otherwise, call `turn-on-ghci-completion'.
 ;;
+;; You may also want to set `ghci-completion-ghc-pkg-additional-args'
+;; to the list of additional argument to supply to `ghc-pkg'.  For
+;; example, this variable can be used to specify which database (user
+;; or global) or which package config file to use.
+;;
 ;; Limitations:
 ;;
 ;; * This package is developed for Emacs 24 and it probably only works
@@ -140,6 +145,13 @@
 
 ;;; Command options
 
+(defcustom ghci-completion-ghc-pkg-additional-args nil
+  "The list of additional arguments to `ghc-pkg'.
+
+Can be used, for example, to specify which database (user or
+global) or which package config file to use."
+  :group 'ghci-completion)
+
 (defvar ghci-completion-exposed-modules nil
   "The list of exposed modules.")
 
@@ -147,7 +159,9 @@
   "Return the list of exposed modules from the registered
 packages in both the global and user databases."
   (with-temp-buffer
-    (call-process "ghc-pkg" nil (current-buffer) nil "dump")
+    (apply #'call-process
+           "ghc-pkg" nil (current-buffer) nil "dump"
+           ghci-completion-ghc-pkg-additional-args)
     (goto-char (point-min))
     (loop while (re-search-forward
                  (concat "exposed: True\n"
