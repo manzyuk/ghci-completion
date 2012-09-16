@@ -14,6 +14,11 @@ this to `.emacs`:
 
 Otherwise, call `turn-on-ghci-completion`.
 
+You may also want to set `ghci-completion-ghc-pkg-additional-args` to
+the list of additional argument to supply to `ghc-pkg`.  For example,
+this variable can be used to specify which database (user or global)
+or which package config file to use.
+
 ## Limitations:
 
 * This package is developed for Emacs 24 and it probably only works
