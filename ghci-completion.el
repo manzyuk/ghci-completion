@@ -364,6 +364,7 @@ packages in both the global and user databases."
     (define-key map "\t" 'completion-at-point)
     map))
 
+;;;###autoload
 (defun turn-on-ghci-completion ()
   "Turn on GHCi completion mode."
   (setq ghci-completion-mode t)
@@ -412,6 +413,7 @@ packages in both the global and user databases."
                   (append (default-value 'minor-mode-alist)
                           '((ghci-completion-mode " GHCi-Completion")))))
 
+;;;###autoload
 (defun ghci-completion-mode (&optional arg)
   "GHCi completion mode.
 Provides basic TAB-completion of GHCi commands."
