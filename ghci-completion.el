@@ -1,10 +1,11 @@
-;;; ghci-completion.el --- Completion for GHCi commands in inferior-haskell buffers -*- lexical-binding: t; -*-
+;;; ghci-completion.el --- Completion for GHCi commands in inferior-haskell buffers
 
 ;; Copyright (C) 2012 Oleksandr Manzyuk <manzyuk@gmail.com>
 
 ;; Author: Oleksandr Manzyuk <manzyuk@gmail.com>
 ;; Version: 0.1.3
 ;; Keywords: convenience
+;; Package-Requires: ((emacs "24.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -65,6 +66,10 @@
 ;;   able to generate the list of all GHC flags programmatically.
 
 ;;; Code:
+
+;; Local Variables:
+;; lexical-binding: t
+;; End:
 
 (eval-when-compile (require 'cl))
 (require 'comint)
