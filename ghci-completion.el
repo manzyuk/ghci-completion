@@ -5,7 +5,7 @@
 ;; Author: Oleksandr Manzyuk <manzyuk@gmail.com>
 ;; Version: 0.1.3
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "24.1"))
+;; Package-Requires: ((emacs "24.1") (cl-lib "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -67,7 +67,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(require 'cl-lib)
 (require 'comint)
 (require 'pcomplete)
 
@@ -129,7 +129,7 @@
       (let ((beg (match-beginning 1))
             (end (match-end 1))
             (completions
-             (remove-if-not
+             (cl-remove-if-not
               (lambda (candidate)
                 (string-prefix-p command candidate))
               ghci-completion-commands)))
@@ -164,13 +164,13 @@ packages in both the global and user databases."
            "ghc-pkg" nil (current-buffer) nil "dump"
            ghci-completion-ghc-pkg-additional-args)
     (goto-char (point-min))
-    (loop while (re-search-forward
-                 (concat "exposed: True\n"
-                         "exposed-modules:"
-                         "\\(\\(?:.*\n?\\)*?\\)"
-                         "hidden-modules")
-                 nil t)
-          nconc (split-string (match-string 1) "[\s\n]+" t))))
+    (cl-loop while (re-search-forward
+                    (concat "exposed: True\n"
+                            "exposed-modules:"
+                            "\\(\\(?:.*\n?\\)*?\\)"
+                            "hidden-modules")
+                    nil t)
+             nconc (split-string (match-string 1) "[\s\n]+" t))))
 
 (defvar ghci-completion-language-options nil
   "The list of supported language extensions.")
